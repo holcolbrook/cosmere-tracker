@@ -1,0 +1,67 @@
+body {
+    background-color: #1a1a1d;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+h1 {
+    color: #c9a227; /* Gold tone */
+    font-variant: small-caps;
+}
+
+#progress-container {
+    background: #333;
+    border-radius: 10px;
+    height: 10px;
+    margin: 10px 0;
+}
+
+#progress-bar {
+    background: #c9a227;
+    height: 100%;
+    width: 0%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.book-card {
+    background: #25252b;
+    border: 1px solid #333;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.book-card.read {
+    border-color: #c9a227;
+    opacity: 0.7;
+}
+
+input[type="checkbox"] {
+    transform: scale(1.5);
+    cursor: pointer;
+}
+
+.tag {
+    background: #444;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #c9a227;
+}
