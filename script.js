@@ -1,7 +1,19 @@
 const SHEET_ID = '1WzQvprVxAsCBbXz0LNRTJAHDSvPRa1KdknBBJfpu9ek';
 const base = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
 
-let localBookData = []; // Storage to avoid redundant fetching
+let localBookData = []; 
+
+// Map Series Name (Col C) to a CSS class
+const planetMap = {
+    'Mistborn': 'scadrial',
+    'Stormlight': 'roshar',
+    'Elantris': 'sel',
+    'Warbreaker': 'nalthis',
+    'White Sand': 'taldain',
+    'Tress': 'lumar',
+    'Yumi': 'komashi',
+    'Sunlit Man': 'canticle'
+};
 
 document.addEventListener('DOMContentLoaded', () => fetchData());
 
@@ -13,7 +25,7 @@ async function fetchData() {
         localBookData = json.table.rows;
         renderMap(localBookData);
     } catch (e) {
-        console.error("Fetch failed. Check Sheet ID and Permissions.", e);
+        console.error("Fetch failed.", e);
     }
 }
 
@@ -26,7 +38,6 @@ function renderMap(rows) {
     const readTitles = Object.keys(savedProgress).filter(t => savedProgress[t]);
 
     if (orderType === 'publication') {
-        // Linear View
         const grid = document.createElement('div');
         grid.className = 'book-grid';
         rows.forEach(row => {
@@ -34,7 +45,6 @@ function renderMap(rows) {
         });
         container.appendChild(grid);
     } else {
-        // Tiered View
         const tiers = {};
         rows.forEach(row => {
             if (!row.c || !row.c[1]) return;
@@ -61,7 +71,10 @@ function renderMap(rows) {
 
 function createBookCard(row, savedProgress, readTitles) {
     const title = row.c[1].v;
+    const series = row.c[2]?.v || "Other"; 
     const imgUrl = row.c[6]?.v || "https://via.placeholder.com/150x220?text=No+Cover";
+    const planetClass = planetMap[series] || 'default';
+
     const reqs = row.c[8]?.v ? row.c[8].v.split(',').map(s => s.trim()) : [];
     const suggs = row.c[9]?.v ? row.c[9].v.split(',').map(s => s.trim()) : [];
     
@@ -73,9 +86,10 @@ function createBookCard(row, savedProgress, readTitles) {
     const isWarned = !isLocked && missingSuggs.length > 0 && !isRead;
 
     const card = document.createElement('div');
-    card.className = `book-card ${isRead ? 'read' : ''} ${isLocked ? 'locked' : ''} ${isWarned ? 'warning' : ''}`;
+    card.className = `book-card ${isRead ? 'read' : ''} ${isLocked ? 'locked' : ''} ${isWarned ? 'warning' : ''} planet-${planetClass}`;
     
     card.innerHTML = `
+        <div class="planet-banner">${series}</div>
         <div class="card-content">
             <input type="checkbox" ${isRead ? 'checked' : ''} onchange="toggleRead('${title.replace(/'/g, "\\'")}', this)">
             <img src="${imgUrl}" alt="${title}" class="book-cover">
