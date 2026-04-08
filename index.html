@@ -3,30 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cosmere Quest Log</title>
+    <title>Cosmere Reading Tracker</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <div class="container">
         <header>
-            <h1>Cosmere Quest Log</h1>
+            <h1>Cosmere Navigation Map</h1>
+            <p>Track your journey through the Shardworlds</p>
+        </header>
+
+        <section class="controls">
+            <h2 id="progress-text">Cosmere Completion: 0%</h2>
             <div id="progress-container">
                 <div id="progress-bar"></div>
             </div>
-            <p id="progress-text">0% Explored</p>
-        </header>
 
-        <div class="controls">
-            <label for="order-select">Reading Order:</label>
-            <select id="order-select" onchange="renderMap(localBookData)">
-                <option value="modified">Modified (Tiered)</option>
-                <option value="publication">Publication (Linear)</option>
-            </select>
-        </div>
-
-        <div id="book-list">
+            <div class="filter-group">
+                <label for="order-select">Reading Path:</label>
+                <select id="order-select">
+                    <option value="tier">By Tier (Story Progression)</option>
+                    <option value="publication">By Publication Date</option>
+                </select>
             </div>
+        </section>
+
+        <div id="next-stop-container"></div>
+
+        <hr style="border: 0; border-top: 1px solid #333; margin: 40px 0;">
+
+        <div id="book-list"></div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
