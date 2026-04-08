@@ -1,105 +1,67 @@
-body {
-    background-color: #121214;
-    color: #e0e0e0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 20px;
-}
-
-.container {
-    max-width: 1100px;
-    margin: auto;
-}
-
+/* Previous base styles remain the same... */
+body { background-color: #121214; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+.container { max-width: 1100px; margin: auto; }
 header { text-align: center; margin-bottom: 30px; }
-h1 { color: #c9a227; font-variant: small-caps; letter-spacing: 2px; margin-bottom: 10px; }
+h1 { color: #c9a227; font-variant: small-caps; letter-spacing: 2px; }
 
-/* Controls & Progress */
-.controls { text-align: center; margin-bottom: 30px; }
-select {
-    background: #1e1e22;
-    color: #c9a227;
-    border: 1px solid #c9a227;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
+/* Planet Banners */
+.planet-banner {
+    font-size: 0.6rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 4px 0;
+    margin: -10px -10px 10px -10px;
+    border-radius: 8px 8px 0 0;
+    letter-spacing: 1px;
+    background: #333; /* Default */
 }
 
-#progress-container {
-    background: #2a2a2e;
-    border-radius: 10px;
-    height: 12px;
-    max-width: 600px;
-    margin: 10px auto;
-    overflow: hidden;
-}
-
-#progress-bar {
-    background: linear-gradient(90deg, #b08d1e, #c9a227);
-    height: 100%;
-    width: 0%;
-    transition: width 0.4s ease;
-}
-
-/* Tiers & Grid */
-.tier-section {
-    margin-bottom: 50px;
-    background: rgba(255, 255, 255, 0.02);
-    padding: 20px;
-    border-radius: 12px;
-}
-
-.tier-title { color: #c9a227; border-bottom: 1px solid #333; padding-bottom: 8px; font-size: 1.1rem; }
-
-.book-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-}
+/* Planet Color Mapping */
+.planet-scadrial .planet-banner { background: #7d7d7d; color: #fff; } /* Metallic Grey */
+.planet-roshar .planet-banner { background: #2a6f97; color: #fff; }   /* Blue */
+.planet-sel .planet-banner { background: #8338ec; color: #fff; }      /* Purple */
+.planet-nalthis .planet-banner { background: #fb5607; color: #fff; }  /* Orange */
+.planet-taldain .planet-banner { background: #e9c46a; color: #333; }  /* Sand Gold */
+.planet-lumar .planet-banner { background: #06d6a0; color: #333; }    /* Emerald */
+.planet-komashi .planet-banner { background: #ff006e; color: #fff; }  /* Magenta */
+.planet-canticle .planet-banner { background: #ffbe0b; color: #333; } /* Ember Yellow */
 
 /* Book Cards */
 .book-card {
     width: 150px;
     background: #1e1e22;
     padding: 10px;
-    border-radius: 8px;
+    border-radius: 10px;
     border: 1px solid #333;
     text-align: center;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s;
+    transition: transform 0.2s, border-color 0.3s;
+    overflow: hidden; /* Clips the banner corners */
 }
 
-.book-card:hover { transform: translateY(-3px); border-color: #444; }
+.book-card.read { border-color: #c9a227; }
+.book-card.locked { filter: grayscale(1); opacity: 0.3; pointer-events: none; }
 
 .book-cover {
     width: 100%;
     height: 210px;
     object-fit: cover;
     border-radius: 4px;
-    background-color: #2a2a2e; /* Placeholder */
+    margin-bottom: 10px;
 }
 
-.book-title {
-    font-size: 0.85rem;
-    font-weight: bold;
-    margin: 10px 0;
-    min-height: 2.5em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Statuses */
-.book-card.read { border-color: #c9a227; background: #1a1a10; }
-.book-card.locked { filter: grayscale(1); opacity: 0.3; pointer-events: none; }
-.book-card.warning { border: 1px dashed #c9a227; }
+.book-title { font-size: 0.85rem; font-weight: bold; min-height: 2.5em; margin: 5px 0; }
 
 .status-badge { font-size: 0.65rem; padding: 3px; border-radius: 3px; background: #000; margin-top: auto; }
 .status-badge.lock { color: #ff4d4d; }
 .status-badge.suggest { color: #ffcc00; }
 
-@media (max-width: 600px) {
-    .book-card { width: 130px; }
-}
+/* Progress Bar & Select remain the same... */
+#progress-container { background: #2a2a2e; border-radius: 10px; height: 12px; max-width: 600px; margin: 10px auto; overflow: hidden; }
+#progress-bar { background: linear-gradient(90deg, #b08d1e, #c9a227); height: 100%; width: 0%; transition: width 0.4s ease; }
+.controls { text-align: center; margin-bottom: 30px; }
+select { background: #1e1e22; color: #c9a227; border: 1px solid #c9a227; padding: 8px 15px; border-radius: 5px; }
+.tier-section { margin-bottom: 50px; background: rgba(255, 255, 255, 0.02); padding: 20px; border-radius: 12px; }
+.tier-title { color: #c9a227; border-bottom: 1px solid #333; padding-bottom: 8px; font-size: 1.1rem; }
+.book-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
