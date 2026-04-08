@@ -79,4 +79,86 @@ select {
 }
 
 .book-card:hover { transform: translateY(-3px); border-color: #555; }
-.book-card.read { border-color: #c9a2
+.book-card.read { border-color: #c9a227; background: #1a1a10; }
+
+/* Ghostly Locked State */
+.book-card.locked { 
+    opacity: 0.25;      
+    filter: saturate(0.4); 
+    pointer-events: none; 
+}
+
+.book-card.warning { border: 1px dashed #c9a227; }
+
+.book-cover {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: #2a2a2e;
+}
+
+.book-title {
+    font-size: 0.85rem;
+    font-weight: bold;
+    min-height: 2.5em;
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Status Badges */
+.status-badge {
+    font-size: 0.65rem;
+    padding: 3px;
+    border-radius: 3px;
+    background: #000;
+    margin-top: auto;
+}
+
+.status-badge.lock { color: #ff4d4d; }
+.status-badge.suggest { color: #ffcc00; }
+
+/* Pulsing Prerequisite for Locked Cards */
+.book-card.locked .status-badge.lock {
+    opacity: 1; 
+    color: #ffcccc; 
+    border: 1px solid #ff4d4d; 
+    animation: lock-shimmer 2s infinite ease-in-out; 
+}
+
+@keyframes lock-shimmer {
+    0% { border-color: #ff4d4d; box-shadow: 0 0 2px #ff4d4d; }
+    50% { border-color: #ffcccc; box-shadow: 0 0 8px #ffcccc; }
+    100% { border-color: #ff4d4d; box-shadow: 0 0 2px #ff4d4d; }
+}
+
+/* Grid Layout */
+.tier-section {
+    margin-bottom: 50px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.tier-title {
+    color: #c9a227;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+}
+
+.book-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    .book-card { width: 130px; }
+}
