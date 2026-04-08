@@ -81,10 +81,10 @@ select {
 .book-card:hover { transform: translateY(-3px); border-color: #555; }
 .book-card.read { border-color: #c9a227; background: #1a1a10; }
 
-/* Ghostly Locked State */
+/* Subtle Locked State (Improved Visibility) */
 .book-card.locked { 
-    opacity: 0.25;      
-    filter: saturate(0.4); 
+    opacity: 0.55;       /* Increased from 0.25 to 0.55 for better visibility */
+    filter: saturate(0.8); /* Keeping colors much more vivid */
     pointer-events: none; 
 }
 
@@ -118,24 +118,14 @@ select {
     margin-top: auto;
 }
 
-.status-badge.lock { color: #ff4d4d; }
+.status-badge.lock { 
+    color: #ff4d4d; 
+    border: 1px solid #ff4d4d; /* Static red border instead of shimmer */
+}
+
 .status-badge.suggest { color: #ffcc00; }
 
-/* Pulsing Prerequisite for Locked Cards */
-.book-card.locked .status-badge.lock {
-    opacity: 1; 
-    color: #ffcccc; 
-    border: 1px solid #ff4d4d; 
-    animation: lock-shimmer 2s infinite ease-in-out; 
-}
-
-@keyframes lock-shimmer {
-    0% { border-color: #ff4d4d; box-shadow: 0 0 2px #ff4d4d; }
-    50% { border-color: #ffcccc; box-shadow: 0 0 8px #ffcccc; }
-    100% { border-color: #ff4d4d; box-shadow: 0 0 2px #ff4d4d; }
-}
-
-/* Grid Layout */
+/* Tier Grid Layout */
 .tier-section {
     margin-bottom: 50px;
     background: rgba(255, 255, 255, 0.02);
