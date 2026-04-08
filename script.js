@@ -4,10 +4,9 @@ const base = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out
 let localBookData = []; 
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if the select element exists before adding listener
-    const select = document.getElementById('order-select');
-    if (select) {
-        select.addEventListener('change', () => renderMap(localBookData));
+    const selectEl = document.getElementById('order-select');
+    if (selectEl) {
+        selectEl.addEventListener('change', () => renderMap(localBookData));
     }
     fetchData();
 });
@@ -20,26 +19,39 @@ async function fetchData() {
         localBookData = json.table.rows;
         renderMap(localBookData);
     } catch (e) {
-        console.error("Fetch failed. Ensure the sheet is published to the web.", e);
+        console.error("Fetch failed. Ensure sheet is published.", e);
     }
 }
 
 function renderMap(rows) {
     const container = document.getElementById('book-list');
-    const selectEl = document.getElementById('order-select');
-    const orderType = selectEl ? selectEl.value : 'tier'; // Default to tier if select missing
+    const nextStopContainer = document.getElementById('next-stop-container');
+    const orderSelect = document.getElementById('order-select');
+    const orderType = orderSelect ? orderSelect.value : 'tier';
     
     if (!container) return;
     container.innerHTML = '';
+    if (nextStopContainer) nextStopContainer.innerHTML = '';
     
     const savedProgress = JSON.parse(localStorage.getItem('cosmereProgress')) || {};
     const readTitles = Object.keys(savedProgress).filter(t => savedProgress[t]);
+
+    // Track the "Next Stop" candidate
+    let nextStopBook = null;
 
     if (orderType === 'publication') {
         const grid = document.createElement('div');
         grid.className = 'book-grid';
         rows.forEach(row => {
-            if (row.c && row.c[1]) grid.appendChild(createBookCard(row, savedProgress, readTitles));
+            if (row.c && row.c[1]) {
+                const card = createBookCard(row, savedProgress, readTitles);
+                grid.appendChild(card);
+                
+                // First unread book in publication order is the next stop
+                if (!nextStopBook && !savedProgress[row.c[1].v]) {
+                    nextStopBook = row;
+                }
+            }
         });
         container.appendChild(grid);
     } else {
@@ -57,14 +69,35 @@ function renderMap(rows) {
             tierDiv.innerHTML = `<h2 class="tier-title">Tier ${tier}</h2>`;
             const grid = document.createElement('div');
             grid.className = 'book-grid';
+            
             tiers[tier].forEach(row => {
                 grid.appendChild(createBookCard(row, savedProgress, readTitles));
+                
+                // Find next stop: first unread in the current lowest uncompleted tier
+                if (!nextStopBook && !savedProgress[row.c[1].v]) {
+                    nextStopBook = row;
+                }
             });
             tierDiv.appendChild(grid);
             container.appendChild(tierDiv);
         });
     }
+
+    if (nextStopBook && nextStopContainer) {
+        renderNextStop(nextStopBook, nextStopContainer, savedProgress, readTitles);
+    }
     updateProgress();
+}
+
+function renderNextStop(row, container, savedProgress, readTitles) {
+    container.innerHTML = `
+        <div class="next-stop-card">
+            <div class="next-stop-label">Recommended Next Stop</div>
+            <div class="next-stop-content">
+                ${createBookCard(row, savedProgress, readTitles).innerHTML}
+            </div>
+        </div>
+    `;
 }
 
 function createBookCard(row, savedProgress, readTitles) {
@@ -97,7 +130,6 @@ function createBookCard(row, savedProgress, readTitles) {
     const card = document.createElement('div');
     card.className = `book-card ${isRead ? 'read' : ''} ${isLocked ? 'locked' : ''} ${isWarned ? 'warning' : ''} planet-${planetClass}`;
     
-    // Using title.replace to handle any stray single quotes in book titles
     const safeTitle = title.replace(/'/g, "\\'");
 
     card.innerHTML = `
@@ -121,7 +153,7 @@ window.toggleRead = function(title, checkbox) {
 }
 
 function updateProgress() {
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const checkboxes = document.querySelectorAll('#book-list input[type="checkbox"]');
     const checked = Array.from(checkboxes).filter(c => c.checked).length;
     const percent = checkboxes.length > 0 ? Math.round((checked / checkboxes.length) * 100) : 0;
     
