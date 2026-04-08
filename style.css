@@ -14,7 +14,7 @@ body {
 header { text-align: center; margin-bottom: 30px; }
 h1 { color: #c9a227; font-variant: small-caps; letter-spacing: 2px; }
 
-/* Controls & Progress */
+/* Controls & Progress bar */
 .controls { text-align: center; margin-bottom: 30px; }
 select {
     background: #1e1e22;
@@ -52,30 +52,8 @@ select {
     letter-spacing: 1px;
 }
 
-/* Planet Colors */
+/* Planet Specific Colors */
 .planet-default .planet-banner { background: #333; color: #aaa; }
 .planet-scadrial .planet-banner { background: #7d7d7d; color: #fff; } 
 .planet-roshar .planet-banner { background: #0077b6; color: #fff; }   
-.planet-sel .planet-banner { background: #8338ec; color: #fff; }      
-.planet-nalthis .planet-banner { background: #fb5607; color: #fff; }  
-.planet-taldain .planet-banner { background: #e9c46a; color: #333; }  
-.planet-lumar .planet-banner { background: #06d6a0; color: #333; }    
-.planet-komashi .planet-banner { background: #ff006e; color: #fff; }  
-.planet-canticle .planet-banner { background: #ffbe0b; color: #333; } 
-
-/* Book Cards */
-.book-card {
-    width: 150px;
-    background: #1e1e22;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid #333;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.2s, border-color 0.3s, opacity 0.5s;
-    overflow: hidden;
-}
-
-.book-card:hover { transform: translateY(-3px); border-color: #555; }
-.book-card.read { border-color: #c9a227; background: #1a1a
+.planet-sel .planet-banner { background: #8338ec; color: #fff; }
