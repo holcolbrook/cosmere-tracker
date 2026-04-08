@@ -1,163 +1,133 @@
-body {
-    background-color: #121214;
-    color: #e0e0e0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 20px;
+const SHEET_ID = '1WzQvprVxAsCBbXz0LNRTJAHDSvPRa1KdknBBJfpu9ek';
+const base = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
+
+let localBookData = []; 
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if the select element exists before adding listener
+    const select = document.getElementById('order-select');
+    if (select) {
+        select.addEventListener('change', () => renderMap(localBookData));
+    }
+    fetchData();
+});
+
+async function fetchData() {
+    try {
+        const res = await fetch(base);
+        const text = await res.text();
+        const json = JSON.parse(text.substr(47).slice(0, -2));
+        localBookData = json.table.rows;
+        renderMap(localBookData);
+    } catch (e) {
+        console.error("Fetch failed. Ensure the sheet is published to the web.", e);
+    }
 }
 
-.container {
-    max-width: 1100px;
-    margin: auto;
+function renderMap(rows) {
+    const container = document.getElementById('book-list');
+    const selectEl = document.getElementById('order-select');
+    const orderType = selectEl ? selectEl.value : 'tier'; // Default to tier if select missing
+    
+    if (!container) return;
+    container.innerHTML = '';
+    
+    const savedProgress = JSON.parse(localStorage.getItem('cosmereProgress')) || {};
+    const readTitles = Object.keys(savedProgress).filter(t => savedProgress[t]);
+
+    if (orderType === 'publication') {
+        const grid = document.createElement('div');
+        grid.className = 'book-grid';
+        rows.forEach(row => {
+            if (row.c && row.c[1]) grid.appendChild(createBookCard(row, savedProgress, readTitles));
+        });
+        container.appendChild(grid);
+    } else {
+        const tiers = {};
+        rows.forEach(row => {
+            if (!row.c || !row.c[1]) return;
+            const tierNum = row.c[7] ? row.c[7].v : 1;
+            if (!tiers[tierNum]) tiers[tierNum] = [];
+            tiers[tierNum].push(row);
+        });
+
+        Object.keys(tiers).sort((a, b) => a - b).forEach(tier => {
+            const tierDiv = document.createElement('div');
+            tierDiv.className = 'tier-section';
+            tierDiv.innerHTML = `<h2 class="tier-title">Tier ${tier}</h2>`;
+            const grid = document.createElement('div');
+            grid.className = 'book-grid';
+            tiers[tier].forEach(row => {
+                grid.appendChild(createBookCard(row, savedProgress, readTitles));
+            });
+            tierDiv.appendChild(grid);
+            container.appendChild(tierDiv);
+        });
+    }
+    updateProgress();
 }
 
-header { text-align: center; margin-bottom: 30px; }
-h1 { color: #c9a227; font-variant: small-caps; letter-spacing: 2px; }
+function createBookCard(row, savedProgress, readTitles) {
+    const title = row.c[1].v;
+    const series = row.c[2]?.v || "Other"; 
+    const imgUrl = row.c[6]?.v || "https://via.placeholder.com/150x220?text=No+Cover";
+    
+    const seriesLower = series.toLowerCase();
+    let planetClass = 'default';
 
-/* Controls & Progress bar */
-.controls { text-align: center; margin-bottom: 30px; }
-select {
-    background: #1e1e22;
-    color: #c9a227;
-    border: 1px solid #c9a227;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
+    if (seriesLower.includes('mistborn')) planetClass = 'scadrial';
+    else if (seriesLower.includes('stormlight')) planetClass = 'roshar';
+    else if (seriesLower.includes('elantris')) planetClass = 'sel';
+    else if (seriesLower.includes('warbreaker')) planetClass = 'nalthis';
+    else if (seriesLower.includes('white sand')) planetClass = 'taldain';
+    else if (seriesLower.includes('tress')) planetClass = 'lumar';
+    else if (seriesLower.includes('yumi')) planetClass = 'komashi';
+    else if (seriesLower.includes('sunlit')) planetClass = 'canticle';
+
+    const reqs = row.c[8]?.v ? row.c[8].v.split(',').map(s => s.trim()) : [];
+    const suggs = row.c[9]?.v ? row.c[9].v.split(',').map(s => s.trim()) : [];
+    
+    const isRead = savedProgress[title] || false;
+    const missingReqs = reqs.filter(r => !readTitles.includes(r));
+    const missingSuggs = suggs.filter(s => !readTitles.includes(s));
+    
+    const isLocked = missingReqs.length > 0 && !isRead;
+    const isWarned = !isLocked && missingSuggs.length > 0 && !isRead;
+
+    const card = document.createElement('div');
+    card.className = `book-card ${isRead ? 'read' : ''} ${isLocked ? 'locked' : ''} ${isWarned ? 'warning' : ''} planet-${planetClass}`;
+    
+    // Using title.replace to handle any stray single quotes in book titles
+    const safeTitle = title.replace(/'/g, "\\'");
+
+    card.innerHTML = `
+        <div class="planet-banner">${series}</div>
+        <div class="card-content">
+            <input type="checkbox" ${isRead ? 'checked' : ''} onchange="toggleRead('${safeTitle}', this)">
+            <img src="${imgUrl}" alt="${title}" class="book-cover">
+            <div class="book-title">${title}</div>
+            ${isLocked ? `<div class="status-badge lock">🔒 Needs: ${missingReqs[0]}</div>` : ''}
+            ${isWarned ? `<div class="status-badge suggest">⚠️ Tip: ${missingSuggs[0]}</div>` : ''}
+        </div>
+    `;
+    return card;
 }
 
-#progress-container {
-    background: #2a2a2e;
-    border-radius: 10px;
-    height: 12px;
-    max-width: 600px;
-    margin: 10px auto;
-    overflow: hidden;
+window.toggleRead = function(title, checkbox) {
+    const savedProgress = JSON.parse(localStorage.getItem('cosmereProgress')) || {};
+    savedProgress[title] = checkbox.checked;
+    localStorage.setItem('cosmereProgress', JSON.stringify(savedProgress));
+    renderMap(localBookData); 
 }
 
-#progress-bar {
-    background: linear-gradient(90deg, #b08d1e, #c9a227);
-    height: 100%;
-    width: 0%;
-    transition: width 0.4s ease;
-}
-
-/* Planet Banners */
-.planet-banner {
-    font-size: 0.6rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    padding: 4px 0;
-    margin: -10px -10px 10px -10px;
-    border-radius: 8px 8px 0 0;
-    letter-spacing: 1px;
-}
-
-/* Planet Specific Colors */
-.planet-default .planet-banner { background: #333; color: #aaa; }
-.planet-scadrial .planet-banner { background: #7d7d7d; color: #fff; } 
-.planet-roshar .planet-banner { background: #0077b6; color: #fff; }   
-.planet-sel .planet-banner { background: #8338ec; color: #fff; }      
-.planet-nalthis .planet-banner { background: #fb5607; color: #fff; }  
-.planet-taldain .planet-banner { background: #e9c46a; color: #333; }  
-.planet-lumar .planet-banner { background: #06d6a0; color: #333; }    
-.planet-komashi .planet-banner { background: #ff006e; color: #fff; }  
-.planet-canticle .planet-banner { background: #ffbe0b; color: #333; } 
-
-/* Book Cards */
-.book-card {
-    width: 150px;
-    background: #1e1e22;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid #333;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.2s, border-color 0.3s, opacity 0.5s;
-    overflow: hidden;
-}
-
-.book-card:hover { transform: translateY(-3px); border-color: #555; }
-.book-card.read { border-color: #c9a227; background: #1a1a10; }
-
-/* Ghostly Locked State - Keeps colors but drapes them in transparency */
-.book-card.locked { 
-    opacity: 0.25;      
-    filter: saturate(0.4); 
-    pointer-events: none; 
-}
-
-.book-card.warning { border: 1px dashed #c9a227; }
-
-.book-cover {
-    width: 100%;
-    height: 210px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    background-color: #2a2a2e;
-}
-
-.book-title {
-    font-size: 0.85rem;
-    font-weight: bold;
-    min-height: 2.5em;
-    margin: 5px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Status Badges */
-.status-badge {
-    font-size: 0.65rem;
-    padding: 3px;
-    border-radius: 3px;
-    background: #000;
-    margin-top: auto;
-}
-
-.status-badge.lock { color: #ff4d4d; }
-.status-badge.suggest { color: #ffcc00; }
-
-/* Pulsing Prerequisite for Locked Cards */
-.book-card.locked .status-badge.lock {
-    opacity: 1; 
-    color: #ffcccc; 
-    border: 1px solid #ff4d4d; 
-    animation: lock-shimmer 2s infinite ease-in-out; 
-}
-
-@keyframes lock-shimmer {
-    0% { border-color: #ff4d4d; box-shadow: 0 0 2px #ff4d4d; }
-    50% { border-color: #ffcccc; box-shadow: 0 0 8px #ffcccc; }
-    100% { border-color: #ff4d4d; box-shadow: 0 0 2px #ff4d4d; }
-}
-
-/* Section/Tier Grid Layout */
-.tier-section {
-    margin-bottom: 50px;
-    background: rgba(255, 255, 255, 0.02);
-    padding: 20px;
-    border-radius: 12px;
-}
-
-.tier-title {
-    color: #c9a227;
-    border-bottom: 1px solid #333;
-    padding-bottom: 8px;
-    margin-bottom: 20px;
-    font-size: 1.1rem;
-}
-
-.book-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 600px) {
-    .book-card { width: 130px; }
+function updateProgress() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const checked = Array.from(checkboxes).filter(c => c.checked).length;
+    const percent = checkboxes.length > 0 ? Math.round((checked / checkboxes.length) * 100) : 0;
+    
+    const bar = document.getElementById('progress-bar');
+    const text = document.getElementById('progress-text');
+    
+    if (bar) bar.style.width = percent + '%';
+    if (text) text.innerText = `Cosmere Completion: ${percent}%`;
 }
