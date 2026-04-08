@@ -1,12 +1,13 @@
 body {
-    background-color: #1a1a1d;
+    background-color: #121214;
     color: #e0e0e0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
     padding: 20px;
 }
 
 .container {
-    max-width: 800px;
+    max-width: 1100px;
     margin: auto;
 }
 
@@ -15,66 +16,109 @@ header {
     margin-bottom: 40px;
 }
 
-h1 { color: #c9a227; font-variant: small-caps; }
+h1 { color: #c9a227; font-variant: small-caps; letter-spacing: 2px; }
 
+/* Progress Bar */
 #progress-container {
-    background: #333;
+    background: #2a2a2e;
     border-radius: 10px;
-    height: 10px;
+    height: 15px;
+    margin: 20px 0;
+    overflow: hidden;
 }
 
 #progress-bar {
-    background: #c9a227;
+    background: linear-gradient(90deg, #b08d1e, #c9a227);
     height: 100%;
     width: 0%;
-    border-radius: 10px;
-    transition: width 0.5s ease;
+    transition: width 0.6s ease;
 }
 
-/* Book Card Layout */
-.book-card {
-    background: #25252b;
-    border: 1px solid #333;
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 8px;
+/* Tier Layout */
+.tier-section {
+    margin-bottom: 60px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.tier-title {
+    color: #c9a227;
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    font-size: 1.2rem;
+}
+
+.book-grid {
     display: flex;
-    align-items: center;
-    gap: 15px;
-    transition: all 0.3s ease;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
 }
 
-.book-card.read {
-    border-color: #c9a227;
-    opacity: 0.6;
+/* Card Styling */
+.book-card {
+    width: 160px;
     background: #1e1e22;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #333;
+    text-align: center;
+    transition: transform 0.2s, opacity 0.3s;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    border-color: #555;
 }
 
 .book-cover {
-    width: 60px;
-    height: 90px;
+    width: 100%;
+    height: 230px;
     object-fit: cover;
-    border-radius: 4px;
-    background-color: #333;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
-.book-info {
-    flex-grow: 1;
+.book-title {
+    font-size: 0.9rem;
+    font-weight: bold;
+    min-height: 2.4em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.tag {
-    background: #3a3a40;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    color: #c9a227;
-    margin-right: 5px;
-    display: inline-block;
-    margin-top: 5px;
+/* States */
+.book-card.read {
+    border-color: #c9a227;
+    background: #1a1a10;
 }
+
+.book-card.locked {
+    filter: grayscale(100%);
+    opacity: 0.3;
+}
+
+.book-card.warning {
+    border: 1px dashed #c9a227;
+}
+
+.status-badge {
+    font-size: 0.7rem;
+    padding: 4px;
+    border-radius: 4px;
+    margin-top: 8px;
+    background: #000;
+}
+
+.status-badge.lock { color: #ff4d4d; }
+.status-badge.suggest { color: #ffcc00; }
 
 input[type="checkbox"] {
-    transform: scale(1.4);
-    cursor: pointer;
-    margin-right: 10px;
+    margin-bottom: 10px;
+    transform: scale(1.2);
 }
