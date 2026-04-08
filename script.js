@@ -6,7 +6,7 @@ let localBookData = [];
 // Map Series Name (Col C) to a CSS class
 const planetMap = {
     'Mistborn': 'scadrial',
-    'Stormlight': 'roshar',
+    'Stormlight Archive': 'roshar',
     'Elantris': 'sel',
     'Warbreaker': 'nalthis',
     'White Sand': 'taldain',
