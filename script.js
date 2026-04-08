@@ -3,18 +3,6 @@ const base = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out
 
 let localBookData = []; 
 
-// Map Series Name (Col C) to a CSS class
-const planetMap = {
-    'Mistborn': 'scadrial',
-    'Stormlight Archive': 'roshar',
-    'Elantris': 'sel',
-    'Warbreaker': 'nalthis',
-    'White Sand': 'taldain',
-    'Tress': 'lumar',
-    'Yumi': 'komashi',
-    'Sunlit Man': 'canticle'
-};
-
 document.addEventListener('DOMContentLoaded', () => fetchData());
 
 async function fetchData() {
@@ -25,7 +13,7 @@ async function fetchData() {
         localBookData = json.table.rows;
         renderMap(localBookData);
     } catch (e) {
-        console.error("Fetch failed.", e);
+        console.error("Fetch failed. Ensure the sheet is published to the web.", e);
     }
 }
 
@@ -73,7 +61,19 @@ function createBookCard(row, savedProgress, readTitles) {
     const title = row.c[1].v;
     const series = row.c[2]?.v || "Other"; 
     const imgUrl = row.c[6]?.v || "https://via.placeholder.com/150x220?text=No+Cover";
-    const planetClass = planetMap[series] || 'default';
+    
+    // SMART PLANET MATCHING (Case-insensitive keyword search)
+    const seriesLower = series.toLowerCase();
+    let planetClass = 'default';
+
+    if (seriesLower.includes('mistborn')) planetClass = 'scadrial';
+    else if (seriesLower.includes('stormlight')) planetClass = 'roshar';
+    else if (seriesLower.includes('elantris')) planetClass = 'sel';
+    else if (seriesLower.includes('warbreaker')) planetClass = 'nalthis';
+    else if (seriesLower.includes('white sand')) planetClass = 'taldain';
+    else if (seriesLower.includes('tress')) planetClass = 'lumar';
+    else if (seriesLower.includes('yumi')) planetClass = 'komashi';
+    else if (seriesLower.includes('sunlit')) planetClass = 'canticle';
 
     const reqs = row.c[8]?.v ? row.c[8].v.split(',').map(s => s.trim()) : [];
     const suggs = row.c[9]?.v ? row.c[9].v.split(',').map(s => s.trim()) : [];
@@ -86,32 +86,4 @@ function createBookCard(row, savedProgress, readTitles) {
     const isWarned = !isLocked && missingSuggs.length > 0 && !isRead;
 
     const card = document.createElement('div');
-    card.className = `book-card ${isRead ? 'read' : ''} ${isLocked ? 'locked' : ''} ${isWarned ? 'warning' : ''} planet-${planetClass}`;
-    
-    card.innerHTML = `
-        <div class="planet-banner">${series}</div>
-        <div class="card-content">
-            <input type="checkbox" ${isRead ? 'checked' : ''} onchange="toggleRead('${title.replace(/'/g, "\\'")}', this)">
-            <img src="${imgUrl}" alt="${title}" class="book-cover">
-            <div class="book-title">${title}</div>
-            ${isLocked ? `<div class="status-badge lock">🔒 Needs: ${missingReqs[0]}</div>` : ''}
-            ${isWarned ? `<div class="status-badge suggest">⚠️ Tip: ${missingSuggs[0]}</div>` : ''}
-        </div>
-    `;
-    return card;
-}
-
-function toggleRead(title, checkbox) {
-    const savedProgress = JSON.parse(localStorage.getItem('cosmereProgress')) || {};
-    savedProgress[title] = checkbox.checked;
-    localStorage.setItem('cosmereProgress', JSON.stringify(savedProgress));
-    renderMap(localBookData); 
-}
-
-function updateProgress() {
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    const checked = Array.from(checkboxes).filter(c => c.checked).length;
-    const percent = checkboxes.length > 0 ? Math.round((checked / checkboxes.length) * 100) : 0;
-    document.getElementById('progress-bar').style.width = percent + '%';
-    document.getElementById('progress-text').innerText = `Cosmere Completion: ${percent}%`;
-}
+    card.className = `book-card ${isRead ? 'read' : ''}
