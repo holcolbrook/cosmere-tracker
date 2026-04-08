@@ -1,4 +1,4 @@
-const SHEET_ID = 'YOUR_SPREADSHEET_ID';
+const SHEET_ID = '1WzQvprVxAsCBbXz0LNRTJAHDSvPRa1KdknBBJfpu9ek';
 const base = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
 
 document.addEventListener('DOMContentLoaded', () => {
